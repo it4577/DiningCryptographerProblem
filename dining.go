@@ -24,16 +24,16 @@ type Cryptographer struct {
 // Create functions performed by the Cryptographers
 
 func (c *Cryptographer) FlipCoin (channel chan bool) {
-	defer wg.Done()			      // End wait group (decrements counter)
+	defer wg.Done()		      // End wait group (decrements counter)
 	c.key = (rand.Int() % 2 == 0) // Determine coin flip
-	channel <- c.key			  // Share flip result
-	close(channel)				  // End communication
+	channel <- c.key              // Share flip result
+	close(channel)                // End communication
 	// Print the coin flip for confirmation only (not seen by other processes)
 	fmt.Println("Cryptographer " + strconv.Itoa(c.num) + " > : Coin flip was: " + strconv.FormatBool(c.key))
 }
 
 func (c *Cryptographer) CompCoin (channel chan bool) {
-	defer wg.Done()			      // End wait group (decrements counter)
+	defer wg.Done()               // End wait group (decrements counter)
 	c.rec = <-channel             // Store the result from other cryptographer
 	c.msg = xor(c.key, c.rec)     // Compare and build broadcast message
 	// Negate message if paying
@@ -43,17 +43,17 @@ func (c *Cryptographer) CompCoin (channel chan bool) {
 // Create functions performed by the Observers
 
 func Observer (cryptographers []Cryptographer) {
-	fmt.Println()	              // Format only
+	fmt.Println()                 // Format only
 	// Print the broadcast messages the observer sees
 	for _, c := range cryptographers {
 		wg.Done()			      // End wait group (decrements counter)
 		fmt.Println("Observer > Cryptographer " + strconv.Itoa(c.num) + "'s broadcast message was: " + strconv.FormatBool(c.msg))
 	}
-	fmt.Println()	              // Format only
+	fmt.Println()                 // Format only
 }
 
 func Owner (cryptographers []Cryptographer) {
-	defer wg.Done()			      // End wait group (decrements counter)
+	defer wg.Done()               // End wait group (decrements counter)
 	var paid bool
 	// Determine if a cryptographer has paid the bill
 	paid = xor(cryptographers[0].msg, cryptographers[1].msg)
@@ -67,7 +67,7 @@ func Owner (cryptographers []Cryptographer) {
 }
 
 func CryptographerZero (cryptographers []Cryptographer) {
-	defer wg.Done()			      // End wait group (decrements counter)
+	defer wg.Done()               // End wait group (decrements counter)
 	var payer string
 	// Compute who paid based on actual coin flips and broadcast messages
 	if nxor(cryptographers[0].key, cryptographers[2].key) == cryptographers[0].msg {
@@ -131,9 +131,9 @@ func main() {
 	// Cryptographers perform the coin flips
 	wg.Add(3)
 	go Cryptographers[0].FlipCoin(coin0)
-	time.Sleep(time.Millisecond * 5)          // Ensures display order
+	time.Sleep(time.Millisecond * 5)     // Ensures display order
 	go Cryptographers[1].FlipCoin(coin1)
-	time.Sleep(time.Millisecond * 5)          // Ensures display order
+	time.Sleep(time.Millisecond * 5)     // Ensures display order
 	go Cryptographers[2].FlipCoin(coin2)
 	wg.Wait()
 
